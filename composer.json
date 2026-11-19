@@ -1,0 +1,15 @@
+{
+  "name": "librecodecoop/akaunting-credential-vault",
+  "description": "Shared company-scoped OpenBao integration for Akaunting modules",
+  "type": "akaunting-module",
+  "license": "AGPL-3.0-or-later",
+  "require": {
+    "php": "^8.2",
+    "ext-curl": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Modules\\CredentialVault\\": "./"
+    }
+  }
+}

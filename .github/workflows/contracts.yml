@@ -1,0 +1,31 @@
+name: Credential Vault contracts
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  php-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run offline PHP contracts and module stack preflight
+        run: |
+          docker run --rm --network none --read-only \
+            --cap-drop ALL --security-opt no-new-privileges \
+            --tmpfs /tmp:rw,nosuid,noexec,size=16m,mode=1777 \
+            -v "$PWD:/module:ro" -w /module php:8.4-cli sh -ceu '
+              find Console Contracts Database Domain Infrastructure Providers Support tests \
+                -type f -name "*.php" -exec php -l {} \; > /tmp/php-lint.txt
+              php tests/contract.php > /tmp/contract.out
+              php tests/profile-store.php > /tmp/profile.out
+              php tests/module-stack.php > /tmp/stack.out
+              echo "PASS Credential Vault contracts, profiles and stack preflight"
+            '
+      - name: Check Git deployment safety
+        run: |
+          bash -n scripts/post-git-checkout.sh tests/post-git-checkout.sh
+          bash tests/post-git-checkout.sh
